@@ -16,14 +16,7 @@ import main as m
 
 def download_online_model(url, dir_name):
     print(f"[~] Downloading voice model with name {dir_name}...")
-
-    # Parse the URL and get the path
-    parsed_url = urllib.parse.urlparse(url)
-    zip_name = os.path.basename(parsed_url.path)
-
-    # Replace '%20' with '_' in the filename
-    zip_name = zip_name.replace("%20", "_")
-
+    zip_name = url.split("/")[-1]
     extraction_folder = os.path.join(m.rvc_models_dir, dir_name)
     if os.path.exists(extraction_folder):
         print(f"Voice model directory {dir_name} already exists! Skipping download.")
@@ -76,9 +69,10 @@ class Predictor(BasePredictor):
             description="The name of the custom RVC model. This should match the 'rvc_model' if you want to use the downloaded model.",
             default=None,
         ),
-        pitch_change: float = Input(
-            description="Change pitch of AI vocals in octaves. Set to 0 for no change. Generally, use 1 for male to female conversions and -1 for vice-versa.",
-            default=0,
+        pitch_change: str = Input(
+            description="Adjust pitch of AI vocals. Options: `no-change`, `male-to-female`, `female-to-male`.",
+            default="no-change",
+            choices=["no-change", "male-to-female", "female-to-male"],
         ),
         index_rate: float = Input(
             description="Control how much of the AI's accent to leave in the vocals.",
@@ -201,6 +195,15 @@ class Predictor(BasePredictor):
                     url=custom_rvc_model_download_url,
                     dir_name=custom_rvc_model_download_name,
                 )
+
+        # Convert pitch_change from string to numerical value for processing
+        # 0 for no change, 1 for male to female, -1 for female to male
+        if pitch_change == "no-change":
+            pitch_change = 0
+        elif pitch_change == "male-to-female":
+            pitch_change = 1
+        else:  # pitch_change == "female-to-male"
+            pitch_change = -1
 
         args = Namespace(
             song_input=str(song_input),
