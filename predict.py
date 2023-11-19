@@ -48,7 +48,6 @@ def download_online_model(url, dir_name):
 class Predictor(BasePredictor):
     def setup(self) -> None:
         """Load the model into memory to make running multiple predictions efficient"""
-        # self.model = torch.load("./weights.pth")
         pass
 
     def predict(
@@ -58,15 +57,25 @@ class Predictor(BasePredictor):
             default=None,
         ),
         rvc_model: str = Input(
-            description="RVC model for a specific voice. If using a custom model, this should match the 'custom_rvc_model_download_name'.",
+            description="RVC model for a specific voice. If using a custom model, this should match the name of the downloaded model. If a 'custom_rvc_model_download_url' is provided, this will be automatically set to the name of the downloaded model.",
             default="Squidward",
+            choices=[
+                "Squidward",
+                "MrKrabs",
+                "Plankton",
+                "Drake",
+                "Vader",
+                "Trump",
+                "Biden",
+                "Obama",
+                "Guitar",
+                "Voilin",
+                "CUSTOM",
+                "Lex" # TODO REMOVE THIS
+            ],
         ),
         custom_rvc_model_download_url: str = Input(
-            description="URL to download a custom RVC model. To use the downloaded model, 'rvc_model' should be set to the same value as 'custom_rvc_model_download_name'.",
-            default=None,
-        ),
-        custom_rvc_model_download_name: str = Input(
-            description="The name of the custom RVC model. This should match the 'rvc_model' if you want to use the downloaded model.",
+            description="URL to download a custom RVC model. If provided, the model will be downloaded (if it doesn't already exist) and used for prediction, regardless of the 'rvc_model' value.",
             default=None,
         ),
         pitch_change: str = Input(
@@ -158,12 +167,11 @@ class Predictor(BasePredictor):
 
         Required Parameters:
             song_input (CogPath): Upload your audio file here.
-            rvc_model (str): RVC model for a specific voice. Default is "Squidward".
+            rvc_model (str): RVC model for a specific voice. Default is "Squidward". If a 'custom_rvc_model_download_url' is provided, this will be automatically set to the name of the downloaded model.
             pitch_change (float): Change pitch of AI vocals in octaves. Set to 0 for no change. Generally, use 1 for male to female conversions and -1 for vice-versa.
 
         Optional Parameters:
-            custom_rvc_model_download_url (str): URL to download a custom RVC model. Defaults to None.
-            custom_rvc_model_download_name (str): The name of the custom RVC model, needs to match on `rvc_model` so model can be used. Defaults to None.
+            custom_rvc_model_download_url (str): URL to download a custom RVC model. If provided, the model will be downloaded (if it doesn't already exist) and used for prediction, regardless of the 'rvc_model' value. Defaults to None.
             index_rate (float): Control how much of the AI's accent to leave in the vocals. 0 <= INDEX_RATE <= 1. Defaults to 0.5.
             filter_radius (int): If >=3: apply median filtering median filtering to the harvested pitch results. 0 <= FILTER_RADIUS <= 7. Defaults to 3.
             rms_mix_rate (float): Control how much to use the original vocal's loudness (0) or a fixed loudness (1). 0 <= RMS_MIX_RATE <= 1. Defaults to 0.25.
@@ -184,17 +192,25 @@ class Predictor(BasePredictor):
             CogPath: The output path of the generated audio file.
         """
 
-        if custom_rvc_model_download_url is not None:
-            print(
-                f"[!] The model will be downloaded as '{custom_rvc_model_download_name}'. To use it, you'll need to match it on 'rvc_model'."
+        if custom_rvc_model_download_url:
+            custom_rvc_model_download_name = urllib.parse.unquote(
+                custom_rvc_model_download_url.split("/")[-1]
             )
-
-            # Only download the model if the user has correctly set the RVC model to the same as the custom_rvc_model_download_name
-            if rvc_model == custom_rvc_model_download_name:
-                download_online_model(
-                    url=custom_rvc_model_download_url,
-                    dir_name=custom_rvc_model_download_name,
-                )
+            custom_rvc_model_download_name = os.path.splitext(
+                custom_rvc_model_download_name
+            )[0]
+            print(
+                f"[!] The model will be downloaded as '{custom_rvc_model_download_name}'."
+            )
+            download_online_model(
+                url=custom_rvc_model_download_url,
+                dir_name=custom_rvc_model_download_name,
+            )
+            rvc_model = custom_rvc_model_download_name
+        else:
+            print(
+                "[!] Since URL was provided, we will try to download the model and use it (even if `rvc_model` is not set to 'CUSTOM')."
+            )
 
         # Convert pitch_change from string to numerical value for processing
         # 0 for no change, 1 for male to female, -1 for female to male
