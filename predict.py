@@ -71,7 +71,7 @@ class Predictor(BasePredictor):
                 "Guitar",
                 "Voilin",
                 "CUSTOM",
-                "Lex" # TODO REMOVE THIS
+                "Huberman" # TODO REMOVE THIS
             ],
         ),
         custom_rvc_model_download_url: str = Input(
