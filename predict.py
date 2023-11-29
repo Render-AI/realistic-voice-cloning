@@ -29,8 +29,8 @@ def download_online_model(url, dir_name):
     import requests, zipfile, io
     r = requests.get(url)
     z = zipfile.ZipFile(io.BytesIO(r.content))
-    z.extractall(os.path.join(extraction_folder, os.path.basename(zip_name.split(".zip")[0]))\
-    print("[+] Model successfully downloaded!")
+    z.extractall(os.path.join(extraction_folder, os.path.basename(zip_name.split(".zip")[0]))
+    # print("[+] Model successfully downloaded!")
 
     """
     # original download script
