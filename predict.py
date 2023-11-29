@@ -30,7 +30,7 @@ def download_online_model(url, dir_name):
     r = requests.get(url)
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(os.path.join(extraction_folder, os.path.basename(zip_name.split(".zip")[0]))\
-    print(f"[+] {zip_name} Model successfully downloaded!")
+    print("[+] Model successfully downloaded!")
 
     """
     # original download script
