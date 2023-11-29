@@ -22,7 +22,7 @@ def download_online_model(url, dir_name):
         print(f"Voice model directory {dir_name} already exists! Skipping download.")
         return
 
-    if "pixeldrain.com" in url:
+    if "https://" in url:
         url = f"https://pixeldrain.com/api/file/{zip_name}"
 
     urllib.request.urlretrieve(url, zip_name)
