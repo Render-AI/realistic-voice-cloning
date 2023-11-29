@@ -25,9 +25,17 @@ def download_online_model(url, dir_name):
     if "pixeldrain.com" in url:
         url = f"https://pixeldrain.com/api/file/{zip_name}"
 
-    urllib.request.urlretrieve(url, zip_name)
+    
+    import requests, zipfile, io
+    r = requests.get(url)
+    z = zipfile.ZipFile(io.BytesIO(r.content))
+    z.extractall(os.path.join(extraction_folder, os.path.basename(zip_name.split(".zip")[0]))\
+    print(f"[+] {zip_name} Model successfully downloaded!")
 
-    print("[~] Extracting zip...")
+    """
+    # original download script
+    urllib.request.urlretrieve(url, zip_name)
+    print("[~] Extracting zip - {zip_name}")
     with zipfile.ZipFile(zip_name, "r") as zip_ref:
         for member in zip_ref.infolist():
             # skip directories
@@ -43,6 +51,7 @@ def download_online_model(url, dir_name):
             ) as target:
                 shutil.copyfileobj(source, target)
     print(f"[+] {dir_name} Model successfully downloaded!")
+    """
 
 
 class Predictor(BasePredictor):

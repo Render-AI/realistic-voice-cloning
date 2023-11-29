@@ -80,7 +80,7 @@ def download_online_model(url, dir_name, progress=gr.Progress()):
 
         urllib.request.urlretrieve(url, zip_name)
 
-        progress(0.5, desc='[~] Extracting zip...')
+        progress(0.5, desc='[~] Extracting zip!')
         extract_zip(extraction_folder, zip_name)
         return f'[+] {dir_name} Model successfully downloaded!'
 
@@ -95,7 +95,7 @@ def upload_local_model(zip_path, dir_name, progress=gr.Progress()):
             raise gr.Error(f'Voice model directory {dir_name} already exists! Choose a different name for your voice model.')
 
         zip_name = zip_path.name
-        progress(0.5, desc='[~] Extracting zip...')
+        progress(0.5, desc='[~] Extracting zip -- ')
         extract_zip(extraction_folder, zip_name)
         return f'[+] {dir_name} Model successfully uploaded!'
 
