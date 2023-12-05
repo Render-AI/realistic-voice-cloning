@@ -13,46 +13,44 @@ sys.path.insert(0, os.path.abspath("src"))
 
 import main as m
 
-
-def download_online_model(url, dir_name):
-    print(f"[~] Downloading voice model with name {dir_name}...")
-    zip_name = url.split("/")[-1]
-    extraction_folder = os.path.join(m.rvc_models_dir, dir_name)
-    if os.path.exists(extraction_folder):
-        print(f"Voice model directory {dir_name} already exists! Skipping download.")
-        return
-
-    if "https://" in url:
-        url = f"https://pixeldrain.com/api/file/{zip_name}"
-
-    
-    import requests, zipfile, io
-    r = requests.get(url)
-    z = zipfile.ZipFile(io.BytesIO(r.content))
-    z.extractall(os.path.join(extraction_folder, os.path.basename(zip_name.split(".zip")[0]))
-    # print("[+] Model successfully downloaded!")
-
-    
-    # original download script
-    # urllib.request.urlretrieve(url, zip_name)
-    # print("[~] Extracting zip - {zip_name}")
-    # with zipfile.ZipFile(zip_name, "r") as zip_ref:
-    #    for member in zip_ref.infolist():
-    #        # skip directories
-    #        if member.is_dir():
-    #            continue
-            # create target directory if it does not exist
-    #        os.makedirs(extraction_folder, exist_ok=True)
-            # extract only files directly to extraction_folder
-    #        with zip_ref.open(member) as source, open(
-    #            os.path.join(extraction_folder, os.path.basename(member.filename)), "wb"
-    #        ) as target:
-    #            shutil.copyfileobj(source, target)
-    # print(f"[+] {dir_name} Model successfully downloaded!")
-
-
-
 class Predictor(BasePredictor):
+    def download_online_model(url, dir_name):
+        print(f"[~] Downloading voice model with name {dir_name}...")
+        zip_name = url.split("/")[-1]
+        extraction_folder = os.path.join(m.rvc_models_dir, dir_name)
+        if os.path.exists(extraction_folder):
+            print(f"Voice model directory {dir_name} already exists! Skipping download.")
+            return
+
+        if "https://" in url:
+            url = f"https://pixeldrain.com/api/file/{zip_name}"
+
+        
+        import requests, zipfile, io
+        r = requests.get(url)
+        z = zipfile.ZipFile(io.BytesIO(r.content))
+        z.extractall(os.path.join(extraction_folder, os.path.basename(zip_name.split(".zip")[0]))
+        # print("[+] Model successfully downloaded!")
+
+        
+        # original download script
+        # urllib.request.urlretrieve(url, zip_name)
+        # print("[~] Extracting zip - {zip_name}")
+        # with zipfile.ZipFile(zip_name, "r") as zip_ref:
+        #    for member in zip_ref.infolist():
+        #        # skip directories
+        #        if member.is_dir():
+        #            continue
+                # create target directory if it does not exist
+        #        os.makedirs(extraction_folder, exist_ok=True)
+                # extract only files directly to extraction_folder
+        #        with zip_ref.open(member) as source, open(
+        #            os.path.join(extraction_folder, os.path.basename(member.filename)), "wb"
+        #        ) as target:
+        #            shutil.copyfileobj(source, target)
+        # print(f"[+] {dir_name} Model successfully downloaded!")
+
+
     def setup(self) -> None:
         """Load the model into memory to make running multiple predictions efficient"""
         from pathlib import Path
@@ -72,20 +70,18 @@ class Predictor(BasePredictor):
                 with open(dir_name / model_name, 'wb') as f:
                     for chunk in r.iter_content(chunk_size=8192):
                         f.write(chunk)
+        
+        mdx_model_names = ['UVR-MDX-NET-Voc_FT.onnx', 'UVR_MDXNET_KARA_2.onnx', 'Reverb_HQ_By_FoxJoy.onnx']
+        for model in mdx_model_names:
+            print(f'Downloading {model}...')
+            dl_model(MDX_DOWNLOAD_LINK, model, mdxnet_models_dir)
 
+        rvc_model_names = ['hubert_base.pt', 'rmvpe.pt']
+        for model in rvc_model_names:
+            print(f'Downloading {model}...')
+            dl_model(RVC_DOWNLOAD_LINK, model, rvc_models_dir)
 
-        if __name__ == '__main__':
-            mdx_model_names = ['UVR-MDX-NET-Voc_FT.onnx', 'UVR_MDXNET_KARA_2.onnx', 'Reverb_HQ_By_FoxJoy.onnx']
-            for model in mdx_model_names:
-                print(f'Downloading {model}...')
-                dl_model(MDX_DOWNLOAD_LINK, model, mdxnet_models_dir)
-
-            rvc_model_names = ['hubert_base.pt', 'rmvpe.pt']
-            for model in rvc_model_names:
-                print(f'Downloading {model}...')
-                dl_model(RVC_DOWNLOAD_LINK, model, rvc_models_dir)
-
-            print('All models downloaded!')
+        print('All models downloaded!')
 
         pass
 
