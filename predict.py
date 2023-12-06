@@ -12,11 +12,45 @@ from cog import BasePredictor, Input, Path as CogPath
 
 sys.path.insert(0, os.path.abspath("src"))
 
+
+def download_online_model(url, dir_name):
+    print(f"[~] Downloading voice model with name {dir_name}...")
+    zip_name = url.split("/")[-1]
+    extraction_folder = os.path.join(m.rvc_models_dir, dir_name)
+    if os.path.exists(extraction_folder):
+        print(
+            f"Voice model directory {dir_name} already exists! Skipping download.")
+        return
+
+    if "pixeldrain.com" in url:
+        url = f"https://pixeldrain.com/api/file/{zip_name}"
+
+    urllib.request.urlretrieve(url, zip_name)
+
+    print("[~] Extracting zip...")
+    with zipfile.ZipFile(zip_name, "r") as zip_ref:
+        for member in zip_ref.infolist():
+            # skip directories
+            if member.is_dir():
+                continue
+
+            # create target directory if it does not exist
+            os.makedirs(extraction_folder, exist_ok=True)
+
+            # extract only files directly to extraction_folder
+            with zip_ref.open(member) as source, open(
+                os.path.join(extraction_folder,
+                             os.path.basename(member.filename)), "wb"
+            ) as target:
+                shutil.copyfileobj(source, target)
+    print(f"[+] {dir_name} Model successfully downloaded!")
+
+
 class Predictor(BasePredictor):
     def setup(self) -> None:
-        """Load the model into memory to make running multiple predictions efficient"""        
+        """Load the model into memory to make running multiple predictions efficient"""
         pass
-        
+
     def predict(
         self,
         song_input: CogPath = Input(
@@ -148,7 +182,7 @@ class Predictor(BasePredictor):
         Returns:
             CogPath: The output path of the generated audio file.
         """
-        
+
         if custom_rvc_model_download_url:
             custom_rvc_model_download_name = urllib.parse.unquote(
                 custom_rvc_model_download_url.split("/")[-1]
@@ -158,25 +192,7 @@ class Predictor(BasePredictor):
             )[0]
             print(
                 f"[!] The model will be downloaded as '{custom_rvc_model_download_name}'."
-            )            
-
-            def download_online_model(url, dir_name):
-                print(f"[~] Downloading voice model with name {dir_name}...")
-                zip_name = url.split("/")[-1]
-                extraction_folder = os.path.join(m.rvc_models_dir, dir_name)
-                if os.path.exists(extraction_folder):
-                    print(f"Voice model directory {dir_name} already exists! Skipping download.")
-                    return
-
-                if "https://" in url:
-                    url = f"https://pixeldrain.com/api/file/{zip_name}"
-
-
-                import requests, zipfile, io
-                r = requests.get(url)
-                z = zipfile.ZipFile(io.BytesIO(r.content))
-                zipPath =  os.path.join(extraction_folder, os.path.basename(zip_name.split(".zip")[0])
-                z.extractall(zippath)                                
+            )
 
             download_online_model(
                 url=custom_rvc_model_download_url,
