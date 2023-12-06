@@ -1,7 +1,6 @@
 # Prediction interface for Cog ⚙️
 # https://github.com/replicate/cog/blob/main/docs/python.md
 
-import src.main as m
 import os
 import sys
 import shutil
@@ -12,14 +11,15 @@ from cog import BasePredictor, Input, Path as CogPath
 
 sys.path.insert(0, os.path.abspath("src"))
 
+import main as m
+
 
 def download_online_model(url, dir_name):
     print(f"[~] Downloading voice model with name {dir_name}...")
     zip_name = url.split("/")[-1]
     extraction_folder = os.path.join(m.rvc_models_dir, dir_name)
     if os.path.exists(extraction_folder):
-        print(
-            f"Voice model directory {dir_name} already exists! Skipping download.")
+        print(f"Voice model directory {dir_name} already exists! Skipping download.")
         return
 
     if "pixeldrain.com" in url:
@@ -39,8 +39,7 @@ def download_online_model(url, dir_name):
 
             # extract only files directly to extraction_folder
             with zip_ref.open(member) as source, open(
-                os.path.join(extraction_folder,
-                             os.path.basename(member.filename)), "wb"
+                os.path.join(extraction_folder, os.path.basename(member.filename)), "wb"
             ) as target:
                 shutil.copyfileobj(source, target)
     print(f"[+] {dir_name} Model successfully downloaded!")
@@ -59,10 +58,20 @@ class Predictor(BasePredictor):
         ),
         rvc_model: str = Input(
             description="RVC model for a specific voice. If using a custom model, this should match the name of the downloaded model. If a 'custom_rvc_model_download_url' is provided, this will be automatically set to the name of the downloaded model.",
-            default="CUSTOM",
+            default="Squidward",
             choices=[
                 "Squidward",
-                "CUSTOM"
+                "MrKrabs",
+                "Plankton",
+                "Drake",
+                "Vader",
+                "Trump",
+                "Biden",
+                "Obama",
+                "Guitar",
+                "Voilin",
+                "CUSTOM",
+                "SamA",  # TODO REMOVE THIS
             ],
         ),
         custom_rvc_model_download_url: str = Input(
@@ -193,7 +202,6 @@ class Predictor(BasePredictor):
             print(
                 f"[!] The model will be downloaded as '{custom_rvc_model_download_name}'."
             )
-
             download_online_model(
                 url=custom_rvc_model_download_url,
                 dir_name=custom_rvc_model_download_name,
