@@ -10,7 +10,7 @@ import urllib.request
 from argparse import Namespace
 from cog import BasePredictor, Input, Path as CogPath
 
-sys.path.insert(0, os.path.abspath("src"))
+# sys.path.insert(0, os.path.abspath("src"))
 
 class Predictor(BasePredictor):
     def setup(self) -> None:
