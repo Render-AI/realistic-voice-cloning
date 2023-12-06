@@ -227,7 +227,7 @@ class Predictor(BasePredictor):
                 #            shutil.copyfileobj(source, target)
                 # print(f"[+] {dir_name} Model successfully downloaded!")
 
-            download_online_model(
+            self.download_online_model(
                 url=custom_rvc_model_download_url,
                 dir_name=custom_rvc_model_download_name,
             )
