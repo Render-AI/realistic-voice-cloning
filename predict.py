@@ -1,7 +1,7 @@
 # Prediction interface for Cog ⚙️
 # https://github.com/replicate/cog/blob/main/docs/python.md
 
-import src.main as m
+import main as m
 import os
 import sys
 import shutil
